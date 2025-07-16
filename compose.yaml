@@ -1,12 +1,19 @@
-version: '3.8'
-
 services:
   evo2:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TZ: Europe/London
+        TORCH_VERSION: "2.5.1"
     command: /bin/bash
     tty: true
     stdin_open: true
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     volumes:
+      - ./evo2_src:/opt/evo2  
       - ./hf_cache:/root/.cache/huggingface
       - ./data:/data
     deploy:
