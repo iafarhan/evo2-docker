@@ -8,18 +8,18 @@ ENV DEBIAN_FRONTEND=${DEBIAN_FRONTEND} \
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        tzdata \
-        ca-certificates \
-        git \
-        git-lfs \
-        curl \
-        build-essential \
-        ninja-build \
-        cmake \
-        python3.11 \
-        python3.11-dev \
-        python3.11-venv \
-        pkg-config && \
+    tzdata \
+    ca-certificates \
+    git \
+    git-lfs \
+    curl \
+    build-essential \
+    ninja-build \
+    cmake \
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
+    pkg-config && \
     ln -sf /usr/bin/python3.11 /usr/bin/python && \
     ln -sf /usr/bin/pip3 /usr/bin/pip || true && \
     git lfs install --system && \
@@ -39,13 +39,16 @@ RUN python3.11 -m pip install --no-build-isolation --upgrade flash-attn
 WORKDIR /opt
 
 ARG REV=main
-RUN git clone --recurse-submodules --depth 1 --branch ${REV} https://github.com/ArcInstitute/evo2.git && \
+RUN git clone --recurse-submodules --depth 1 --branch ${REV} https://github.com/iafarhan/evo2-docker.git \
+    evo2 && \
     cd evo2 && git submodule update --init --recursive
 
 WORKDIR /opt/evo2
 ENV VORTEX_SKIP_LOCAL_FLASH_ATTN=1
 RUN sed -i '/vortex\/ops\/attn/ s/^/# SKIPPED BY DOCKER BUILD /' vortex/Makefile || true
 RUN python3.11 -m pip install -e .
+RUN pip uninstall -y transformer_engine transformer_engine_torch transformer_engine_cu12 && \
+    pip install 'transformer-engine[pytorch]==1.13.0'
 
 WORKDIR /workspace
 
